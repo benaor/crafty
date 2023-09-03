@@ -4,7 +4,9 @@
   "description": "Social Networking Kata Implement a console-based social networking application (similar to Twitter) satisfying the scenarios below.",
   "main": "index.js",
   "scripts": {
-    "build": "tsc --noEmit ./index.ts && esbuild index.ts --bundle --platform=node --format=cjs --outfile=dist/index.js"
+    "build": "tsc --noEmit ./index.ts && esbuild index.ts --bundle --platform=node --format=cjs --outfile=dist/index.js",
+    "test": "jest",
+    "test:watch": "jest --watchAll"
   },
   "bin": {
     "crafty": "./dist/index.js"

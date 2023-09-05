@@ -1,4 +1,6 @@
 import { MessageRepository } from "./MessageRepository";
+import { DateProvider } from "./post-message.usecase";
+import { publicationTime } from "./publicationTime";
 
 type TimelineItem = {
   author: string;
@@ -9,7 +11,10 @@ type TimelineItem = {
 export type Timeline = Array<TimelineItem>;
 
 export class ViewTimelineUseCase {
-  constructor(private readonly messageRepository: MessageRepository) {}
+  constructor(
+    private readonly messageRepository: MessageRepository,
+    private dateProvider: DateProvider
+  ) {}
   async handle({ user }: { user: string }): Promise<Timeline> {
     const messagesOfUser = await this.messageRepository.getAllOfUser(user);
 
@@ -17,17 +22,15 @@ export class ViewTimelineUseCase {
       (msgA, msgB) => msgB.publishedAt.getTime() - msgA.publishedAt.getTime()
     );
 
-    return [
-      {
-        author: messagesOfUser[0].author,
-        text: messagesOfUser[0].text,
-        publicationTime: "1 minute ago",
-      },
-      {
-        author: messagesOfUser[1].author,
-        text: messagesOfUser[1].text,
-        publicationTime: "3 minutes ago",
-      },
-    ];
+    return messagesOfUser.map((msg) => ({
+      author: msg.author,
+      text: msg.text,
+      publicationTime: this._publicationTime(msg.publishedAt),
+    }));
+  }
+
+  private _publicationTime(publishedAt: Date): string {
+    const now = this.dateProvider.getNow();
+    return publicationTime(now, publishedAt);
   }
 }

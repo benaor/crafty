@@ -1,9 +1,29 @@
-import { Message, MessageRepository } from "./post-message.usecase";
+import { Message } from "./Message";
+import { MessageRepository } from "./MessageRepository";
 
 export class inMemoryMessageRepository implements MessageRepository {
-  message: Message;
+  messages = new Map<string, Message>();
 
-  save(msg: Message): void {
-    this.message = msg;
+  getAllOfUser(user: string): Promise<Message[]> {
+    return Promise.resolve(
+      [...this.messages.values()].filter((msg) => msg.author === user)
+    );
   }
+
+  async save(msg: Message): Promise<void> {
+    this._save(msg);
+    return Promise.resolve();
+  }
+
+  getMessageById = (messageId: string) => {
+    return this.messages.get(messageId);
+  };
+
+  givenExistingMessages = (messages: Message[]) => {
+    messages.forEach(this._save);
+  };
+
+  private _save = (msg: Message) => {
+    this.messages.set(msg.id, msg);
+  };
 }

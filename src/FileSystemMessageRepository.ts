@@ -13,7 +13,7 @@ export class FileSystemMessageRepository implements MessageRepository {
     return messages;
   }
 
-  getById(messageId: string): Promise<Message> {
+  async getById(messageId: string): Promise<Message> {
     return this.getMessages().then(
       (messages) => messages.find((msg) => msg.id === messageId)!
     );

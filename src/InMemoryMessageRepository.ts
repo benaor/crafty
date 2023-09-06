@@ -6,7 +6,9 @@ export class inMemoryMessageRepository implements MessageRepository {
 
   getAllOfUser(user: string): Promise<Message[]> {
     return Promise.resolve(
-      [...this.messages.values()].filter((msg) => msg.author === user)
+      [...this.messages.values()]
+        .filter((msg) => msg.author === user)
+        .map((msg) => ({ ...msg }))
     );
   }
 
@@ -15,6 +17,9 @@ export class inMemoryMessageRepository implements MessageRepository {
     return Promise.resolve();
   }
 
+  async getById(messageId: string): Promise<Message> {
+    return Promise.resolve(this.messages.get(messageId)!);
+  }
   getMessageById = (messageId: string) => {
     return this.messages.get(messageId);
   };

@@ -13,9 +13,22 @@ export class FileSystemMessageRepository implements MessageRepository {
     return messages;
   }
 
+  getById(messageId: string): Promise<Message> {
+    return this.getMessages().then(
+      (messages) => messages.find((msg) => msg.id === messageId)!
+    );
+  }
+
   async save(msg: Message): Promise<void> {
     const messages = await this.getMessages();
-    messages.push(msg);
+    const existingMessage = messages.findIndex((m) => m.id === msg.id);
+
+    if (existingMessage === -1) {
+      messages.push(msg);
+    } else {
+      messages[existingMessage] = msg;
+    }
+
     return fs.promises.writeFile(this.messagePath, JSON.stringify(messages));
   }
 

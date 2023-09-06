@@ -7,7 +7,10 @@ export class FileSystemMessageRepository implements MessageRepository {
   private messagePath = path.join(__dirname, "message.json");
 
   getAllOfUser(user: string): Promise<Message[]> {
-    throw new Error("Method not implemented.");
+    const messages = this.getMessages().then((messages) =>
+      messages.filter((msg) => msg.author === user)
+    );
+    return messages;
   }
 
   async save(msg: Message): Promise<void> {
@@ -17,14 +20,18 @@ export class FileSystemMessageRepository implements MessageRepository {
   }
 
   private async getMessages(): Promise<Message[]> {
-    const data = await fs.promises.readFile(this.messagePath);
-    const messages = JSON.parse(data.toString()) as Message[];
+    try {
+      const data = await fs.promises.readFile(this.messagePath);
+      const messages = JSON.parse(data.toString()) as Message[];
 
-    return messages.map((msg) => ({
-      id: msg.id,
-      text: msg.text,
-      author: msg.author,
-      publishedAt: new Date(msg.publishedAt),
-    }));
+      return messages.map((msg) => ({
+        id: msg.id,
+        text: msg.text,
+        author: msg.author,
+        publishedAt: new Date(msg.publishedAt),
+      }));
+    } catch (error) {
+      return [];
+    }
   }
 }

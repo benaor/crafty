@@ -1,6 +1,6 @@
-import { MessageRepository } from "./MessageRepository";
-import { DateProvider } from "./post-message.usecase";
-import { publicationTime } from "./publicationTime";
+import { DateProvider } from "../../domain/ports/DateProvider";
+import { MessageRepository } from "../../domain/ports/MessageRepository";
+import { publicationTime } from "../../utils/publicationTime";
 
 type TimelineItem = {
   author: string;

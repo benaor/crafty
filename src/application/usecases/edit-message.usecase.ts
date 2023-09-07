@@ -1,5 +1,4 @@
-import { MessageRepository } from "./MessageRepository";
-import { Message } from "./Message";
+import { MessageRepository } from "../../domain/ports/MessageRepository";
 
 export type EditMessageCommand = {
   messageId: string;

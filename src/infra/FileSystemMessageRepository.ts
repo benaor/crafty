@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
-import { Message, MessageText, SerializedMessage } from "./Message";
-import { MessageRepository } from "./MessageRepository";
+import { MessageRepository } from "../domain/ports/MessageRepository";
+import { Message, SerializedMessage } from "../domain/Message";
 
 export class FileSystemMessageRepository implements MessageRepository {
   constructor(private messagePath = path.join(__dirname, "message.json")) {}

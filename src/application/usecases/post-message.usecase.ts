@@ -1,11 +1,8 @@
-import { Message, MessageText } from "./Message";
-import { MessageRepository } from "./MessageRepository";
+import { Message } from "../../domain/Message";
+import { MessageRepository } from "../../domain/ports/MessageRepository";
+import { DateProvider } from "../../domain/ports/DateProvider";
 
 export type PostMessageCommand = { id: string; text: string; author: string };
-
-export interface DateProvider {
-  getNow(): Date;
-}
 
 export class PostMessageUseCase {
   constructor(

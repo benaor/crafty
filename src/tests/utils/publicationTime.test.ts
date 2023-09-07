@@ -1,4 +1,4 @@
-import { publicationTime } from "../utils/publicationTime";
+import { publicationTime } from "../../utils/publicationTime";
 
 describe("PublicationTime", () => {
   it("Should return 'Less than a minute ago' when the message was published less than a minute ago", async () => {

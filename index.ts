@@ -1,15 +1,14 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import {
-  DateProvider,
-  PostMessageCommand,
-  PostMessageUseCase,
-} from "./src/post-message.usecase";
-import { FileSystemMessageRepository } from "./src/FileSystemMessageRepository";
-import { ViewTimelineUseCase } from "./src/view-timeline.usecase";
 import { exit } from "process";
-import { EditMessageUseCase } from "./src/edit-message.usecase";
-
+import { EditMessageUseCase } from "./src/application/usecases/edit-message.usecase";
+import {
+  PostMessageUseCase,
+  PostMessageCommand,
+} from "./src/application/usecases/post-message.usecase";
+import { ViewTimelineUseCase } from "./src/application/usecases/view-timeline.usecase";
+import { DateProvider } from "./src/domain/ports/DateProvider";
+import { FileSystemMessageRepository } from "./src/infra/FileSystemMessageRepository";
 class RealDateProvider implements DateProvider {
   getNow(): Date {
     return new Date();

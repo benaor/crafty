@@ -5,4 +5,5 @@ export type Followed = {
 
 export interface FollowersRepository {
   saveFollowed(followed: Followed): Promise<void>;
+  getFollowedOf(user: string): Promise<string[]>;
 }

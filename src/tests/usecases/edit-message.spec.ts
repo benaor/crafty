@@ -1,6 +1,9 @@
 import { EmptyMessageError, MessageTooLongError } from "../../domain/Message";
-import { messageBuilder } from "../message.builder";
-import { MessagingFixture, createMessagingFixture } from "../messaging.fixture";
+import { messageBuilder } from "../fixtures/message.builder";
+import {
+  MessagingFixture,
+  createMessagingFixture,
+} from "../fixtures/messaging.fixture";
 
 describe("Feature: Edit message", () => {
   let fixture: MessagingFixture;

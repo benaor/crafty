@@ -1,24 +1,26 @@
-import { Message } from "../domain/Message";
+import { Message } from "../../domain/Message";
 import {
   EditMessageUseCase,
   EditMessageCommand,
-} from "../application/usecases/edit-message.usecase";
+} from "../../application/usecases/edit-message.usecase";
 import {
   PostMessageUseCase,
   PostMessageCommand,
-} from "../application/usecases/post-message.usecase";
-import {
-  Timeline,
-  ViewTimelineUseCase,
-} from "../application/usecases/view-timeline.usecase";
-import { inMemoryMessageRepository } from "../infra/InMemoryMessageRepository";
-import { StubDateProvider } from "../infra/StubDateProvider";
+} from "../../application/usecases/post-message.usecase";
+import { ViewTimelineUseCase } from "../../application/usecases/view-timeline.usecase";
+import { InMemoryMessageRepository } from "../../infra/InMemoryMessageRepository";
+import { StubDateProvider } from "../../infra/StubDateProvider";
+import { Timeline } from "../../domain/Timeline";
 
 export const createMessagingFixture = () => {
   let thrownError: Error;
-  let timeline: Timeline;
+  let timeline: {
+    author: string;
+    text: string;
+    publicationTime: string;
+  }[];
 
-  const messageRepository = new inMemoryMessageRepository();
+  const messageRepository = new InMemoryMessageRepository();
   const dateProvider = new StubDateProvider();
   const postMessageUseCase = new PostMessageUseCase(
     messageRepository,
@@ -58,12 +60,19 @@ export const createMessagingFixture = () => {
       const message = await messageRepository.getById(expectedMessage.id);
       expect(message).toEqual(expectedMessage);
     },
-    thenUserShouldSee: (expectedTimeline: Timeline) => {
+    thenUserShouldSee: (
+      expectedTimeline: {
+        author: string;
+        text: string;
+        publicationTime: string;
+      }[]
+    ) => {
       expect(timeline).toEqual(expectedTimeline);
     },
     thenErrorShouldBe: (expectedErrorClass: new () => Error) => {
       expect(thrownError).toBeInstanceOf(expectedErrorClass);
     },
+    messageRepository,
   };
 };
 

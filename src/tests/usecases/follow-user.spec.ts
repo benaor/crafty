@@ -1,20 +1,19 @@
 import {
-  FollowUserCommand,
-  FollowUserUseCase,
-} from "../../application/usecases/follow-user.usecase";
-import { InMemoryFollowersRepository } from "../../infra/InMemoryFollowersRepository";
+  FollowingFixture,
+  createFollowingFixture,
+} from "../fixtures/following.fixture";
 
 describe("Feature: Following a user", () => {
-  let fixture: Fixture;
+  let fixture: FollowingFixture;
 
   beforeEach(() => {
-    fixture = createFixture();
+    fixture = createFollowingFixture();
   });
 
   test("Alice can follow Bob", async () => {
     fixture.givenUserFollows({
       user: "Alice",
-      followed: ["Charlie"],
+      followedUsers: ["Charlie"],
     });
 
     await fixture.whenUserFollows({
@@ -28,34 +27,3 @@ describe("Feature: Following a user", () => {
     });
   });
 });
-
-const createFixture = () => {
-  const followersRepository = new InMemoryFollowersRepository();
-  const followUserUseCase = new FollowUserUseCase(followersRepository);
-  return {
-    givenUserFollows: ({
-      user,
-      followed,
-    }: {
-      user: string;
-      followed: string[];
-    }) => {
-      followersRepository.givenExistingFollowed(
-        followed.map((followed) => ({ user, followed }))
-      );
-    },
-    whenUserFollows: async (followUserCommand: FollowUserCommand) => {
-      await followUserUseCase.handle(followUserCommand);
-    },
-    thenUserFollowedAre: async (userFollowed: {
-      user: string;
-      followed: string[];
-    }) => {
-      const actualFollowed = followersRepository.getFollowedOf(
-        userFollowed.user
-      );
-      expect(actualFollowed).toEqual(userFollowed.followed);
-    },
-  };
-};
-type Fixture = ReturnType<typeof createFixture>;

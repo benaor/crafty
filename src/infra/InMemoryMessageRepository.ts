@@ -1,7 +1,7 @@
 import { Message } from "../domain/Message";
 import { MessageRepository } from "../domain/ports/MessageRepository";
 
-export class inMemoryMessageRepository implements MessageRepository {
+export class InMemoryMessageRepository implements MessageRepository {
   messages = new Map<string, Message>();
 
   getAllOfUser(user: string): Promise<Message[]> {

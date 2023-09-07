@@ -16,8 +16,8 @@ export class InMemoryFollowersRepository implements FollowersRepository {
     followedUsers.forEach(this.addFollowed);
   };
 
-  getFollowedOf(user: string) {
-    return this.followedByUser.get(user) ?? [];
+  async getFollowedOf(user: string) {
+    return Promise.resolve(this.followedByUser.get(user) ?? []);
   }
 
   private addFollowed = (followed: Followed) => {

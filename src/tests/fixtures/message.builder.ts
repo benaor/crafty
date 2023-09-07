@@ -1,4 +1,4 @@
-import { Message, SerializedMessage } from "../domain/Message";
+import { Message, SerializedMessage } from "../../domain/Message";
 
 export const messageBuilder = ({
   id = "message-id",

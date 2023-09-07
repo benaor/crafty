@@ -1,13 +1,11 @@
-import { Message, MessageText } from "../Message";
-
-type MessageBuilder = Omit<Partial<Message>, "text"> & { text?: string };
+import { Message, MessageText, PrimitiveMessage } from "../Message";
 
 export const messageBuilder = ({
   id = "message-id",
   text = "Any text",
   author = "Author",
   publishedAt = new Date("2023-01-19T19:00:00.000Z"),
-}: MessageBuilder = {}) => {
+}: Partial<PrimitiveMessage> = {}) => {
   const props = { id, author, text, publishedAt };
   return {
     withId(_id: typeof id) {

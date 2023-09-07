@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { Message } from "./Message";
+import { Message, MessageText, PrimitiveMessage } from "./Message";
 import { MessageRepository } from "./MessageRepository";
 
 export class FileSystemMessageRepository implements MessageRepository {
@@ -35,11 +35,11 @@ export class FileSystemMessageRepository implements MessageRepository {
   private async getMessages(): Promise<Message[]> {
     try {
       const data = await fs.promises.readFile(this.messagePath);
-      const messages = JSON.parse(data.toString()) as Message[];
+      const messages = JSON.parse(data.toString()) as PrimitiveMessage[];
 
       return messages.map((msg) => ({
         id: msg.id,
-        text: msg.text,
+        text: MessageText.create(msg.text),
         author: msg.author,
         publishedAt: new Date(msg.publishedAt),
       }));

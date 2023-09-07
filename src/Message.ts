@@ -8,6 +8,10 @@ export type Message = {
   publishedAt: Date;
 };
 
+export type PrimitiveMessage = Omit<Message, "text"> & {
+  text: string;
+};
+
 export class MessageText {
   private constructor(readonly value: string) {}
 

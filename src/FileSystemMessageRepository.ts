@@ -4,7 +4,7 @@ import { Message, MessageText, PrimitiveMessage } from "./Message";
 import { MessageRepository } from "./MessageRepository";
 
 export class FileSystemMessageRepository implements MessageRepository {
-  private messagePath = path.join(__dirname, "message.json");
+  constructor(private messagePath = path.join(__dirname, "message.json")) {}
 
   getAllOfUser(user: string): Promise<Message[]> {
     const messages = this.getMessages().then((messages) =>
@@ -29,7 +29,13 @@ export class FileSystemMessageRepository implements MessageRepository {
       messages[existingMessage] = msg;
     }
 
-    return fs.promises.writeFile(this.messagePath, JSON.stringify(messages));
+    const stringifiedMessages = JSON.stringify(
+      messages.map((msg) => ({
+        ...msg,
+        text: msg.text.value,
+      }))
+    );
+    return fs.promises.writeFile(this.messagePath, stringifiedMessages);
   }
 
   private async getMessages(): Promise<Message[]> {

@@ -1,11 +1,11 @@
-import { Message, MessageText, PrimitiveMessage } from "../Message";
+import { Message, MessageText, SerializedMessage } from "../Message";
 
 export const messageBuilder = ({
   id = "message-id",
   text = "Any text",
   author = "Author",
   publishedAt = new Date("2023-01-19T19:00:00.000Z"),
-}: Partial<PrimitiveMessage> = {}) => {
+}: Partial<SerializedMessage> = {}) => {
   const props = { id, author, text, publishedAt };
   return {
     withId(_id: typeof id) {
@@ -20,11 +20,12 @@ export const messageBuilder = ({
     publishedAt(_publishedAt: typeof publishedAt) {
       return messageBuilder({ ...props, publishedAt: _publishedAt });
     },
-    build: (): Message => ({
-      id: props.id,
-      author: props.author,
-      text: MessageText.create(props.text),
-      publishedAt: props.publishedAt,
-    }),
+    build: (): Message =>
+      Message.deserialize({
+        id: props.id,
+        author: props.author,
+        text: props.text,
+        publishedAt: props.publishedAt,
+      }),
   };
 };

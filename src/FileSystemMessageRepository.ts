@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { Message, MessageText, PrimitiveMessage } from "./Message";
+import { Message, MessageText, SerializedMessage } from "./Message";
 import { MessageRepository } from "./MessageRepository";
 
 export class FileSystemMessageRepository implements MessageRepository {
@@ -30,25 +30,25 @@ export class FileSystemMessageRepository implements MessageRepository {
     }
 
     const stringifiedMessages = JSON.stringify(
-      messages.map((msg) => ({
-        ...msg,
-        text: msg.text.value,
-      }))
+      messages.map((msg) => msg.serialize)
     );
+
     return fs.promises.writeFile(this.messagePath, stringifiedMessages);
   }
 
   private async getMessages(): Promise<Message[]> {
     try {
       const data = await fs.promises.readFile(this.messagePath);
-      const messages = JSON.parse(data.toString()) as PrimitiveMessage[];
+      const messages = JSON.parse(data.toString()) as SerializedMessage[];
 
-      return messages.map((msg) => ({
-        id: msg.id,
-        text: MessageText.create(msg.text),
-        author: msg.author,
-        publishedAt: new Date(msg.publishedAt),
-      }));
+      return messages.map((msg) =>
+        Message.deserialize({
+          id: msg.id,
+          text: msg.text,
+          author: msg.author,
+          publishedAt: new Date(msg.publishedAt),
+        })
+      );
     } catch (error) {
       return [];
     }

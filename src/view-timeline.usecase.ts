@@ -24,7 +24,7 @@ export class ViewTimelineUseCase {
 
     return messagesOfUser.map((msg) => ({
       author: msg.author,
-      text: msg.text.value,
+      text: msg.text,
       publicationTime: this._publicationTime(msg.publishedAt),
     }));
   }

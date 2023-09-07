@@ -8,7 +8,7 @@ export class inMemoryMessageRepository implements MessageRepository {
     return Promise.resolve(
       [...this.messages.values()]
         .filter((msg) => msg.author === user)
-        .map((msg) => ({ ...msg }))
+        .map((msg) => msg)
     );
   }
 

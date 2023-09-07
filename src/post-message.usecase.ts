@@ -1,4 +1,4 @@
-import { MessageText } from "./Message";
+import { Message, MessageText } from "./Message";
 import { MessageRepository } from "./MessageRepository";
 
 export type PostMessageCommand = { id: string; text: string; author: string };
@@ -14,13 +14,13 @@ export class PostMessageUseCase {
   ) {}
 
   async handle(postMessageCommand: PostMessageCommand) {
-    const messageText = MessageText.create(postMessageCommand.text);
-
-    await this.messageRepository.save({
-      id: postMessageCommand.id,
-      text: messageText,
-      author: postMessageCommand.author,
-      publishedAt: this.dateProvider.getNow(),
-    });
+    await this.messageRepository.save(
+      Message.deserialize({
+        id: postMessageCommand.id,
+        text: postMessageCommand.text,
+        author: postMessageCommand.author,
+        publishedAt: this.dateProvider.getNow(),
+      })
+    );
   }
 }

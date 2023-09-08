@@ -9,6 +9,13 @@ import {
 import { ViewTimelineUseCase } from "./src/application/usecases/view-timeline.usecase";
 import { DateProvider } from "./src/domain/ports/DateProvider";
 import { FileSystemMessageRepository } from "./src/infra/FileSystemMessageRepository";
+import {
+  FollowUserCommand,
+  FollowUserUseCase,
+} from "./src/application/usecases/follow-user.usecase";
+import { FileSystemFollowersRepository } from "./src/infra/FileSystemFollowersRepository";
+import { ViewWallUseCase } from "./src/application/usecases/view-wall.usecase";
+
 class RealDateProvider implements DateProvider {
   getNow(): Date {
     return new Date();
@@ -17,6 +24,7 @@ class RealDateProvider implements DateProvider {
 
 const dateProvider = new RealDateProvider();
 const messageRepository = new FileSystemMessageRepository();
+const followersRepository = new FileSystemFollowersRepository();
 const postMessageUseCase = new PostMessageUseCase(
   messageRepository,
   dateProvider
@@ -25,6 +33,12 @@ const viewTimelineUseCase = new ViewTimelineUseCase(
   messageRepository,
   dateProvider
 );
+const viewWallUseCase = new ViewWallUseCase(
+  messageRepository,
+  followersRepository,
+  dateProvider
+);
+const followUserUseCase = new FollowUserUseCase(followersRepository);
 const editMessageUseCase = new EditMessageUseCase(messageRepository);
 
 const program = new Command();
@@ -64,6 +78,42 @@ program
             text: message,
           });
           console.log("Message edited!");
+          exit(0);
+        } catch (error) {
+          console.error(error);
+          exit(1);
+        }
+      })
+  )
+  .addCommand(
+    new Command("follow")
+      .argument("<user>", "The current user")
+      .argument("<user-to-follow>", "The user that user wants to follow")
+      .action(async (user, userToFollow) => {
+        try {
+          const followUserCommand: FollowUserCommand = {
+            user,
+            follow: userToFollow,
+          };
+
+          await followUserUseCase.handle(followUserCommand);
+
+          console.log(`${user} is now following ${userToFollow}!`);
+          exit(0);
+        } catch (error) {
+          console.error(error);
+          exit(1);
+        }
+      })
+  )
+  .addCommand(
+    new Command("wall")
+      .argument("<user>", "The user whose the wall is displayed")
+      .action(async (user) => {
+        try {
+          const wall = await viewWallUseCase.handle({ user });
+
+          console.table(wall);
           exit(0);
         } catch (error) {
           console.error(error);

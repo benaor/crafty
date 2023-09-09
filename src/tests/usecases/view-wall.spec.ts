@@ -14,6 +14,8 @@ import {
 import { InMemoryFollowersRepository } from "../../infra/InMemoryFollowersRepository";
 import { InMemoryMessageRepository } from "../../infra/InMemoryMessageRepository";
 import { StubDateProvider } from "../../infra/StubDateProvider";
+import { DefaultTimelinePresenter } from "../../application/DefaultTimelinePresenter";
+import { TimelinePresenter } from "../../application/TimelinePresenter";
 
 describe("Feature: Viewing a user's wall", () => {
   let followingFixture: FollowingFixture;
@@ -90,12 +92,18 @@ const createFixture = ({
     followersRepository,
     dateProvider
   );
+  const defaultTimelinePresenter = new DefaultTimelinePresenter(dateProvider);
+  const timelinePresenter: TimelinePresenter = {
+    show(theTimeline) {
+      wall = defaultTimelinePresenter.show(theTimeline);
+    },
+  };
   return {
     givenNowIs(now: Date) {
       dateProvider.now = now;
     },
     async whenUserSeesTheWallOf(user: string) {
-      wall = await viewWallUseCase.handle({ user });
+      await viewWallUseCase.handle({ user }, timelinePresenter);
     },
     thenUserShouldSee(expectedWall: Wall) {
       expect(wall).toEqual(expectedWall);

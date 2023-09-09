@@ -10,15 +10,17 @@ import {
 import { ViewTimelineUseCase } from "../../application/usecases/view-timeline.usecase";
 import { InMemoryMessageRepository } from "../../infra/InMemoryMessageRepository";
 import { StubDateProvider } from "../../infra/StubDateProvider";
+import { DefaultTimelinePresenter } from "../../application/DefaultTimelinePresenter";
+import { TimelinePresenter } from "../../application/TimelinePresenter";
 import { Timeline } from "../../domain/Timeline";
 
 export const createMessagingFixture = () => {
   let thrownError: Error;
-  let timeline: {
+  let timeline: Array<{
     author: string;
     text: string;
     publicationTime: string;
-  }[];
+  }>;
 
   const messageRepository = new InMemoryMessageRepository();
   const dateProvider = new StubDateProvider();
@@ -31,6 +33,12 @@ export const createMessagingFixture = () => {
     dateProvider
   );
   const editMessageUseCase = new EditMessageUseCase(messageRepository);
+  const defaultTimelinePresenter = new DefaultTimelinePresenter(dateProvider);
+  const timelinePresenter: TimelinePresenter = {
+    show(_timeline: Timeline) {
+      timeline = defaultTimelinePresenter.show(_timeline);
+    },
+  };
 
   return {
     givenNowIs: (now: Date) => {
@@ -47,7 +55,7 @@ export const createMessagingFixture = () => {
       }
     },
     whenUserSeesTheTimelineOf: async (user: string) => {
-      timeline = await viewTimelineUseCase.handle({ user });
+      await viewTimelineUseCase.handle({ user }, timelinePresenter);
     },
     whenUserEditsMessage: async (editMessageCommand: EditMessageCommand) => {
       try {

@@ -16,10 +16,22 @@ import { DateProvider } from "../domain/ports/DateProvider";
 import { PrismaFolloweeRepository } from "../infra/PrismaFollowersRepository";
 import { PrismaMessageRepository } from "../infra/PrismaMessageRepository";
 import { PrismaClient } from "@prisma/client";
+import { DefaultTimelinePresenter } from "../application/DefaultTimelinePresenter";
+import { TimelinePresenter } from "../application/TimelinePresenter";
+import { Timeline } from "../domain/Timeline";
 
 class RealDateProvider implements DateProvider {
   getNow(): Date {
     return new Date();
+  }
+}
+
+class CliTimelinePresenter implements TimelinePresenter {
+  constructor(
+    private readonly defaultTimelinePresenter: DefaultTimelinePresenter
+  ) {}
+  show(timeline: Timeline): void {
+    console.table(this.defaultTimelinePresenter.show(timeline));
   }
 }
 
@@ -43,6 +55,8 @@ const viewWallUseCase = new ViewWallUseCase(
 );
 const followUserUseCase = new FollowUserUseCase(followersRepository);
 const editMessageUseCase = new EditMessageUseCase(messageRepository);
+const defaultTimelinePresenter = new DefaultTimelinePresenter(dateProvider);
+const timelinePresenter = new CliTimelinePresenter(defaultTimelinePresenter);
 
 const program = new Command();
 
@@ -98,9 +112,7 @@ program
             user,
             follow: userToFollow,
           };
-
           await followUserUseCase.handle(followUserCommand);
-
           console.log(`${user} is now following ${userToFollow}!`);
           exit(0);
         } catch (error) {
@@ -114,9 +126,7 @@ program
       .argument("<user>", "The user whose the wall is displayed")
       .action(async (user) => {
         try {
-          const wall = await viewWallUseCase.handle({ user });
-
-          console.table(wall);
+          await viewWallUseCase.handle({ user }, timelinePresenter);
           exit(0);
         } catch (error) {
           console.error(error);
@@ -129,8 +139,7 @@ program
       .argument("<user>", "The user whose the timeline is displayed")
       .action(async (user) => {
         try {
-          const timeline = await viewTimelineUseCase.handle({ user });
-          console.table(timeline);
+          await viewTimelineUseCase.handle({ user }, timelinePresenter);
           exit(0);
         } catch (error) {
           console.error(error);

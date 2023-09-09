@@ -1,6 +1,6 @@
 import * as httpErrors from "http-errors";
 import { PrismaClient } from "@prisma/client";
-import Fastify, { FastifyInstance } from "fastify";
+import Fastify, { FastifyInstance, FastifyReply } from "fastify";
 import {
   EditMessageCommand,
   EditMessageUseCase,
@@ -18,10 +18,20 @@ import { ViewWallUseCase } from "../application/usecases/view-wall.usecase";
 import { DateProvider } from "../domain/ports/DateProvider";
 import { PrismaFolloweeRepository } from "../infra/PrismaFollowersRepository";
 import { PrismaMessageRepository } from "../infra/PrismaMessageRepository";
+import { TimelinePresenter } from "../application/TimelinePresenter";
+import { Timeline } from "../domain/Timeline";
 
 class RealDateProvider implements DateProvider {
   getNow(): Date {
     return new Date();
+  }
+}
+
+class ApiTimelinePresenter implements TimelinePresenter {
+  constructor(private readonly fastifyReply: FastifyReply) {}
+
+  show(timeline: Timeline): void {
+    this.fastifyReply.status(200).send(timeline.data);
   }
 }
 
@@ -105,10 +115,13 @@ const routes = async (fastifyInstance: FastifyInstance) => {
       | httpErrors.HttpError<500>;
   }>("/view", {}, async (request, reply) => {
     try {
-      const timeline = await viewTimelineUseCase.handle({
-        user: request.query.user,
-      });
-      reply.status(200).send(timeline);
+      const timelinePresenter = new ApiTimelinePresenter(reply);
+      await viewTimelineUseCase.handle(
+        {
+          user: request.query.user,
+        },
+        timelinePresenter
+      );
     } catch (err) {
       reply.send(httpErrors[500](err));
     }
@@ -121,8 +134,11 @@ const routes = async (fastifyInstance: FastifyInstance) => {
       | httpErrors.HttpError<500>;
   }>("/wall", {}, async (request, reply) => {
     try {
-      const wall = await viewWallUseCase.handle({ user: request.query.user });
-      reply.status(200).send(wall);
+      const timelinePresenter = new ApiTimelinePresenter(reply);
+      await viewWallUseCase.handle(
+        { user: request.query.user },
+        timelinePresenter
+      );
     } catch (err) {
       reply.send(httpErrors[500](err));
     }

@@ -2,6 +2,7 @@ import { FollowersRepository } from "../../domain/ports/FollowersRepository";
 import { MessageRepository } from "../../domain/ports/MessageRepository";
 import { DateProvider } from "../../domain/ports/DateProvider";
 import { Timeline } from "../../domain/Timeline";
+import { TimelinePresenter } from "../TimelinePresenter";
 
 export type Wall = {
   author: string;
@@ -16,7 +17,10 @@ export class ViewWallUseCase {
     private dateProvider: DateProvider
   ) {}
 
-  async handle({ user }: { user: string }): Promise<Wall> {
+  async handle(
+    { user }: { user: string },
+    timelinePresenter: TimelinePresenter
+  ): Promise<void> {
     const followees = await this.followersRepository.getFollowedOf(user);
 
     const users = [user, ...followees];
@@ -26,8 +30,8 @@ export class ViewWallUseCase {
       )
     ).flat();
 
-    const timeline = new Timeline(messages, this.dateProvider.getNow());
+    const timeline = new Timeline(messages);
 
-    return timeline.data;
+    timelinePresenter.show(timeline);
   }
 }

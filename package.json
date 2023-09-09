@@ -11,10 +11,14 @@
   "bin": {
     "crafty": "./dist/index.js"
   },
+  "prisma": {
+    "schema": "src/infra/prisma/schema.prisma"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@testcontainers/postgresql": "^10.2.1",
     "@types/jest": "^29.5.4",
     "@types/node": "^20.5.7",
     "esbuild": "^0.19.2",

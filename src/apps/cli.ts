@@ -1,20 +1,21 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { exit } from "process";
-import { EditMessageUseCase } from "./src/application/usecases/edit-message.usecase";
+import { EditMessageUseCase } from "../application/usecases/edit-message.usecase";
+import {
+  FollowUserUseCase,
+  FollowUserCommand,
+} from "../application/usecases/follow-user.usecase";
 import {
   PostMessageUseCase,
   PostMessageCommand,
-} from "./src/application/usecases/post-message.usecase";
-import { ViewTimelineUseCase } from "./src/application/usecases/view-timeline.usecase";
-import { DateProvider } from "./src/domain/ports/DateProvider";
-import { FileSystemMessageRepository } from "./src/infra/FileSystemMessageRepository";
-import {
-  FollowUserCommand,
-  FollowUserUseCase,
-} from "./src/application/usecases/follow-user.usecase";
-import { FileSystemFollowersRepository } from "./src/infra/FileSystemFollowersRepository";
-import { ViewWallUseCase } from "./src/application/usecases/view-wall.usecase";
+} from "../application/usecases/post-message.usecase";
+import { ViewTimelineUseCase } from "../application/usecases/view-timeline.usecase";
+import { ViewWallUseCase } from "../application/usecases/view-wall.usecase";
+import { DateProvider } from "../domain/ports/DateProvider";
+import { PrismaFolloweeRepository } from "../infra/PrismaFollowersRepository";
+import { PrismaMessageRepository } from "../infra/PrismaMessageRepository";
+import { PrismaClient } from "@prisma/client";
 
 class RealDateProvider implements DateProvider {
   getNow(): Date {
@@ -22,9 +23,11 @@ class RealDateProvider implements DateProvider {
   }
 }
 
+const prismaClient = new PrismaClient();
+
 const dateProvider = new RealDateProvider();
-const messageRepository = new FileSystemMessageRepository();
-const followersRepository = new FileSystemFollowersRepository();
+const messageRepository = new PrismaMessageRepository(prismaClient);
+const followersRepository = new PrismaFolloweeRepository(prismaClient);
 const postMessageUseCase = new PostMessageUseCase(
   messageRepository,
   dateProvider
@@ -137,7 +140,9 @@ program
   );
 
 async function main() {
+  await prismaClient.$connect();
   await program.parseAsync();
+  await prismaClient.$disconnect();
 }
 
 main();
